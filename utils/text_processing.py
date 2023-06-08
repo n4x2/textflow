@@ -89,6 +89,21 @@ def normalize_slang(text):
     
     return ' '.join(normalized_text)
 
+def remove_links(text):
+    """
+    Removes links from the given text.
+
+    Args:
+        text (str): The input text containing links.
+
+    Returns:
+        str: The text with links removed.
+
+    """
+    pattern = re.compile(r"(http[s]?://\S+|www\.\S+|pic.twitter.com/\S+)")
+    cleaned_text = re.sub(pattern, "", text)
+    return cleaned_text
+
 def normalize(text):
     """
     Normalizes the given text if it contains Indonesian words.
@@ -100,6 +115,7 @@ def normalize(text):
         str or bool: The normalized text if it contains Indonesian words, False otherwise.
     """
     text = lowercase_text(text)               # Convert text to lowercase
+    text = remove_links(text)                 # Remove links
     text = remove_unnecessary_chars(text)     # Remove unnecessary characters
     text = remove_non_alphanumeric(text)      # Remove non-alphanumeric characters
     text = normalize_slang(text)              # Normalize slang words
