@@ -1,0 +1,15 @@
+# Python-specific ignores
+*.pyc
+__pycache__/
+
+# Environment-specific ignores
+venv/
+env/
+*.env
+
+# Editor and IDE ignores
+.vscode/
+.idea/
+
+# Miscellaneous ignores
+.DS_Store
