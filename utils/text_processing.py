@@ -153,14 +153,14 @@ def normalize(text):
     Returns:
         str or bool: The normalized text if it contains Indonesian words, False otherwise.
     """
-    text = lowercase_text(text)               # Convert text to lowercase
-    text = remove_hashtag(text)               # Remove hashtags
-    text = remove_word_after_at(text)         # Remove words after @ symbols
-    text = remove_links(text)                 # Remove links
-    text = remove_non_alphanumeric(text)      # Remove non-alphanumeric characters
-    text = remove_unnecessary_chars(text)     # Remove unnecessary characters
-    text = remove_unwanted_words(text)        # Remove unwanted words
-    text = normalize_slang(text)              # Normalize slang words
-    text = stem_text(text)                    # Stemming
-    text = remove_stopwords(text)             # Remove stopwords
+    text = lowercase_text(text)                                 # Convert text to lowercase
+    text = remove_hashtag(text)                                 # Remove hashtags
+    text = remove_word_after_at(text)                           # Remove words after @ symbols
+    text = remove_links(text)                                   # Remove links
+    text = remove_non_alphanumeric(text)                        # Remove non-alphanumeric characters
+    text = remove_unnecessary_chars(text)                       # Remove unnecessary characters
+    text = remove_unwanted_words(text, unwanted_words)          # Remove unwanted words
+    text = normalize_slang(text)                                # Normalize slang words
+    text = stem_text(text)                                      # Stemming
+    text = remove_stopwords(text)                               # Remove stopwords
     return text
