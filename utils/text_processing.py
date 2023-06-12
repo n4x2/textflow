@@ -1,7 +1,7 @@
 import re 
 import json
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory 
-from utils.constants import unnecessary_chars 
+from utils.constants import unnecessary_chars, unwanted_words
 
 def lowercase_text(text):
     """
@@ -42,6 +42,19 @@ def remove_stopwords(text):
     with open('./data/stopwords.json', 'r') as file:
         stop_words = json.load(file)
     return ' '.join(word for word in text.split() if word.lower() not in stop_words)
+
+def remove_unwanted_words(text, unwanted_words):
+    """
+    Removes unwanted words from the given text.
+    
+    Args:
+        text (str): The input text.
+        unwanted_words (list): A list of words to be removed from the text.
+    
+    Returns:
+        str: The text with unwanted words removed.
+    """
+    return ' '.join(word for word in text.split() if word.lower() not in unwanted_words)
 
 def remove_non_alphanumeric(text):
     """
@@ -104,6 +117,32 @@ def remove_links(text):
     cleaned_text = re.sub(pattern, "", text)
     return cleaned_text
 
+def remove_hashtag(text):
+    """
+    Removes hashtags from the given text.
+    
+    Args:
+        text (str): The input text containing hashtags.
+    
+    Returns:
+        str: The text with hashtags removed.
+    """
+    return re.sub(r'#\w+\b', '', text)
+
+def remove_word_after_at(text):
+    """
+    Removes words that appear after the @ symbol from the given text.
+    
+    Args:
+        text (str): The input text containing mentions.
+    
+    Returns:
+        str: The text with words after @ symbols removed.
+    """
+    cleaned_text = re.sub(r'@\w+', '', text)
+    return cleaned_text
+
+
 def normalize(text):
     """
     Normalizes the given text if it contains Indonesian words.
@@ -115,9 +154,12 @@ def normalize(text):
         str or bool: The normalized text if it contains Indonesian words, False otherwise.
     """
     text = lowercase_text(text)               # Convert text to lowercase
+    text = remove_hashtag(text)               # Remove hashtags
+    text = remove_word_after_at(text)         # Remove words after @ symbols
     text = remove_links(text)                 # Remove links
-    text = remove_unnecessary_chars(text)     # Remove unnecessary characters
     text = remove_non_alphanumeric(text)      # Remove non-alphanumeric characters
+    text = remove_unnecessary_chars(text)     # Remove unnecessary characters
+    text = remove_unwanted_words(text)        # Remove unwanted words
     text = normalize_slang(text)              # Normalize slang words
     text = stem_text(text)                    # Stemming
     text = remove_stopwords(text)             # Remove stopwords
