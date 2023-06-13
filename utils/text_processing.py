@@ -92,12 +92,17 @@ def normalize_slang(text):
     """
     with open('./data/kamus_alay.json', 'r') as file:
         slang_dict = json.load(file)
+    
+    with open('./data/additional_word_dictionary.json', 'r') as file:
+        additional_slang_dict = json.load(file)
+
+    slangs = {**slang_dict, **additional_slang_dict}
         
     normalized_text = []
     words = text.split()
     
     for word in words:
-        normalized_word = slang_dict.get(word.lower(), word)
+        normalized_word = slangs.get(word.lower(), word)
         normalized_text.append(normalized_word)
     
     return ' '.join(normalized_text)
