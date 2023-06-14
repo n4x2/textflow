@@ -41,7 +41,5 @@ This project provide API endpoints:
 {
   "text": "raw text"
 }
-
-//  respond { "normalized_text": "normalized result" }
 ```
 
