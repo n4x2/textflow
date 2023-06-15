@@ -2,6 +2,7 @@ import re
 import json
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
+from utils.filter_kbbi import filter_and_remove
 
 
 def _remove_hashtag(text: str) -> str:
@@ -26,11 +27,6 @@ def _remove_non_alphanumeric(text: str) -> str:
 
 def _lowercase_text(text: str) -> str:
     return text.lower()
-
-def _remove_leading_trailing_space(text: str)->str:
-    text = re.sub(r'^[\s\n]*([^.]+)[\s\n]*\.', r'\1.', text)
-    text = re.sub(r'\.[\s\n]*([^.]+)[\s\n]*$', r'.\1', text)
-    return text
 
 def _remove_consecutive_spaces(text: str) -> str:
     return re.sub(r'\s{2,}', ' ', text)
@@ -70,8 +66,7 @@ def filter_text(text: str) -> str:
     text = _remove_number(text)
     text = _remove_non_alphanumeric(text)
     text = _remove_consecutive_spaces(text)
-    text = _remove_leading_trailing_space(text)
-    return text
+    return text.strip()
 
 
 def stem_text(text: str) -> str:
@@ -86,4 +81,5 @@ def normalize_text(text: str) -> str:
     text = normalize_slang_word(text)
     text = _remove_stopwords(text)
     text = stem_text(text)
-    return text
+    text = filter_and_remove(text)
+    return text.strip()
