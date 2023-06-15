@@ -1,171 +1,89 @@
-import re 
+import re
 import json
-from Sastrawi.Stemmer.StemmerFactory import StemmerFactory 
-from utils.constants import unnecessary_chars, unwanted_words
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 
-def lowercase_text(text):
-    """
-    Converts the text to lowercase.
 
-    Args:
-        text (str): The input text.
+def _remove_hashtag(text: str) -> str:
+    return re.sub(r'#\w+\b', '', text)
 
-    Returns:
-        str: The text converted to lowercase.
-    """
+
+def _remove_mentions(text: str) -> str:
+    return re.sub(r'@\w+', '', text)
+
+
+def _remove_number(text: str) -> str:
+    return re.sub(r'\d+', '', text)
+
+
+def _remove_links(text: str) -> str:
+    return re.sub(re.compile(r"(http[s]?://\S+|www\.\S+|pic.twitter.com/\S+)"), "", text)
+
+
+def _remove_non_alphanumeric(text: str) -> str:
+    return re.sub(r'\W+', ' ', text)
+
+
+def _lowercase_text(text: str) -> str:
     return text.lower()
 
-def stem_text(text):
-    """
-    Stems the text using the Sastrawi stemmer.
+def _remove_leading_trailing_space(text: str)->str:
+    text = re.sub(r'^[\s\n]*([^.]+)[\s\n]*\.', r'\1.', text)
+    text = re.sub(r'\.[\s\n]*([^.]+)[\s\n]*$', r'.\1', text)
+    return text
 
-    Args:
-        text (str): The input text.
+def _remove_consecutive_spaces(text: str) -> str:
+    return re.sub(r'\s{2,}', ' ', text)
 
-    Returns:
-        str: The stemmed text.
-    """
-    factory = StemmerFactory()
-    stemmer = factory.create_stemmer()  
-    return stemmer.stem(text)
 
-def remove_stopwords(text):
-    """
-    Removes stopwords from the text.
+def _remove_stopwords(text: str) -> str:
+    factory = StopWordRemoverFactory()
+    stopword = factory.create_stop_word_remover()
 
-    Args:
-        text (str): The input text.
+    return stopword.remove(text)
 
-    Returns:
-        str: The text with stopwords removed.
-    """
-    with open('./data/stopwords.json', 'r') as file:
-        stop_words = json.load(file)
-    return ' '.join(word for word in text.split() if word.lower() not in stop_words)
 
-def remove_unwanted_words(text, unwanted_words):
-    """
-    Removes unwanted words from the given text.
-    
-    Args:
-        text (str): The input text.
-        unwanted_words (list): A list of words to be removed from the text.
-    
-    Returns:
-        str: The text with unwanted words removed.
-    """
-    return ' '.join(word for word in text.split() if word.lower() not in unwanted_words)
-
-def remove_non_alphanumeric(text):
-    """
-    Removes non-alphanumeric characters from the text.
-
-    Args:
-        text (str): The input text.
-
-    Returns:
-        str: The text with non-alphanumeric characters removed.
-    """
-    return re.sub(r'\W+|\d+', ' ', text)
-
-def remove_unnecessary_chars(text):
-    """
-    Removes unnecessary characters from the text.
-
-    Args:
-        text (str): The input text.
-
-    Returns:
-        str: The text with unnecessary characters removed.
-    """
-    return ''.join(char for char in text if char not in unnecessary_chars)
-
-def normalize_slang(text):
-    """
-    Normalizes slang words in the text.
-
-    Args:
-        text (str): The input text.
-
-    Returns:
-        str: The text with slang words normalized.
-    """
-    with open('./data/kamus_alay.json', 'r') as file:
+def normalize_slang_word(text: str) -> str:
+    with open('./data/slang.json', 'r') as file:
         slang_dict = json.load(file)
-    
-    with open('./data/additional_word_dictionary.json', 'r') as file:
+
+    with open('./data/custom_slang_words.json', 'r') as file:
         additional_slang_dict = json.load(file)
 
     slangs = {**slang_dict, **additional_slang_dict}
-        
+
     normalized_text = []
     words = text.split()
-    
+
     for word in words:
         normalized_word = slangs.get(word.lower(), word)
         normalized_text.append(normalized_word)
-    
+
     return ' '.join(normalized_text)
 
-def remove_links(text):
-    """
-    Removes links from the given text.
 
-    Args:
-        text (str): The input text containing links.
-
-    Returns:
-        str: The text with links removed.
-
-    """
-    pattern = re.compile(r"(http[s]?://\S+|www\.\S+|pic.twitter.com/\S+)")
-    cleaned_text = re.sub(pattern, "", text)
-    return cleaned_text
-
-def remove_hashtag(text):
-    """
-    Removes hashtags from the given text.
-    
-    Args:
-        text (str): The input text containing hashtags.
-    
-    Returns:
-        str: The text with hashtags removed.
-    """
-    return re.sub(r'#\w+\b', '', text)
-
-def remove_word_after_at(text):
-    """
-    Removes words that appear after the @ symbol from the given text.
-    
-    Args:
-        text (str): The input text containing mentions.
-    
-    Returns:
-        str: The text with words after @ symbols removed.
-    """
-    cleaned_text = re.sub(r'@\w+', '', text)
-    return cleaned_text
+def filter_text(text: str) -> str:
+    text = _lowercase_text(text)
+    text = _remove_hashtag(text)
+    text = _remove_mentions(text)
+    text = _remove_links(text)
+    text = _remove_number(text)
+    text = _remove_non_alphanumeric(text)
+    text = _remove_consecutive_spaces(text)
+    text = _remove_leading_trailing_space(text)
+    return text
 
 
-def normalize(text):
-    """
-    Normalizes the given text if it contains Indonesian words.
+def stem_text(text: str) -> str:
+    factory = StemmerFactory()
+    stemmer = factory.create_stemmer()
 
-    Args:
-        text (str): The input text.
+    return stemmer.stem(_lowercase_text(text))
 
-    Returns:
-        str or bool: The normalized text if it contains Indonesian words, False otherwise.
-    """
-    text = lowercase_text(text)                                 # Convert text to lowercase
-    text = remove_hashtag(text)                                 # Remove hashtags
-    text = remove_word_after_at(text)                           # Remove words after @ symbols
-    text = remove_links(text)                                   # Remove links
-    text = remove_non_alphanumeric(text)                        # Remove non-alphanumeric characters
-    text = remove_unnecessary_chars(text)                       # Remove unnecessary characters
-    text = remove_unwanted_words(text, unwanted_words)          # Remove unwanted words
-    text = normalize_slang(text)                                # Normalize slang words
-    text = stem_text(text)                                      # Stemming
-    text = remove_stopwords(text)                               # Remove stopwords
+
+def normalize_text(text: str) -> str:
+    text = filter_text(text)
+    text = normalize_slang_word(text)
+    text = _remove_stopwords(text)
+    text = stem_text(text)
     return text
