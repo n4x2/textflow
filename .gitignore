@@ -13,3 +13,5 @@ env/
 
 # Miscellaneous ignores
 .DS_Store
+
+.tmp
