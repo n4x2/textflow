@@ -1,45 +1,60 @@
-# textflow
-Text Preprocessing
+# TextFlow
 
-## Table of Contents
+TextFlow transform raw Indonesian sentences into a cleaner format for further analysis or modeling. The main preprocessing steps involved in the process are:
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [API Endpoint](#api-endpoint)
+- Lowercasing
+- Filtering
+- Normalizing slang
+- Stemming
+- Stopword removal
 
-## Introduction
+In addition to the mentioned, it also includes the functionality to detect unknown words that are not present in the slang dictionary. These words are captured and stored in the `/data` directory. The purpose behind this feature is to allow manual correction and addition of these words to the slang dictionary, with the goal of improving future normalization.
 
-Textflow transform raw text data into a format suitable for further analysis or modeling.
+TextFlow offers the following endpoints:
 
-The main features of this project include:
-- Lowercasing of text to ensure consistency and remove case sensitivity.
-- Filtering of non-alphanumeric characters and unnecessary characters.
-- Normalization of slang words to their standard forms.
-- Stemming to reduce words to their base or root form.
-- Stopword removal to eliminate common words that do not carry significant meaning.
+- `POST /normalize`: Performs normalization on the text.
+- `POST /filter`: Filters out unnecessary elements from the text.
+- `POST /stem`: Applies stemming to reduce words to their base form.
+- `POST /slang`: Normalizes slang words present in the text.
+- `POST /tokenize`: Breaks down the text into individual tokens.
 
+Additional endpoint:
+- `POST /translate/{source_lang}/{destination_lang}`: Translates text from the source language to the destination language.
 
 ## Installation
-1. Clone the repository: `git clone https://github.com/n4x2/textflow.git`
-2. Navigate to the project directory: `cd textflow`
-3. Install the required packages: `pip install -r requirements.txt`
-4. Run: `uvicorn main:app --reload`
 
-## API Endpoint
+- Clone the repository: `git clone https://github.com/n4x2/textflow.git`
+- Navigate to the project directory: `cd textflow`
+- Install the required packages: `pip install -r requirements.txt`
+- Run: `uvicorn main:app --reload`
 
-This project provide API endpoints:
+## Usage
 
-### Normalize Text
+Here is an example of how to use the normalization endpoint of TextFlow:
 
-**Endpoint:** `/normalize`
-
-**Method:** POST
-
-**Request:**
+```shell
+curl -X 'POST' \
+  'http://127.0.0.1:8000/api/v1/normalize' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "text": "makan apa sekarang ya"
+}'
+```
+The response from the API would be:
 
 ```json
 {
-  "text": "raw text"
+  "success": true,
+  "message": "Text successfully normalized",
+  "data": {
+    "normalized_text": "makan"
+  },
+  "error_code": null
 }
 ```
+In this example, the input text `"makan apa sekarang ya"` is sent to the `/normalize` endpoint. The API responds with a success message and provides the normalized text as `"makan"`.
 
+## License
+
+TextFlow is licensed under the Simplified BSD License. See the [LICENSE](LICENSE) file for more details.
